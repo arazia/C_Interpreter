@@ -62,6 +62,7 @@ int expr(struct Lexer *this) {
     this->curr_token = *Lexer_next_token(this);
 
     struct Token left = this->curr_token;
+    
     Lexer_eat_token(this, INTEGER);
 
     struct Token op = this->curr_token;
@@ -70,7 +71,7 @@ int expr(struct Lexer *this) {
     struct Token right = this->curr_token;
     Lexer_eat_token(this, INTEGER);
 
-    int result = (int)left.value + (int)right.value;
+    int result = ((int)left.value - '0') + ((int)right.value - '0');
 
     return result;
 
