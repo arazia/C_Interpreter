@@ -5,13 +5,14 @@
 enum token_type {
   INTEGER,
   ADD,
+  MINUS,
   END,
   ERROR
 };
 
 struct Token {
    enum token_type type;
-   char value;
+   char value[20];
 };
 
-void init_Token_types(struct Token *this, enum token_type _type, char _value);
+void init_Token_types(struct Token *this, enum token_type _type, char _value[]);
