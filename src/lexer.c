@@ -23,15 +23,18 @@ void Lexer_advance(struct Lexer *this) {  // helper function for next_token
     this->curr_char = this->text[this->pos];
 }
 
-// void Lexer_integer(struct Lexer *this, char **res) {
-//     int index = 0;
-//     while (this->curr_char != '\0' && isdigit(this->curr_char)) {
-//         *res[index] = this->curr_char;
-//         Lexer_advance(this);
-//         index++;
-//     }
+char* Lexer_integer(struct Lexer *this, char *res) {
+    int index = 0;
+    while (this->curr_char != '\0' && isdigit(this->curr_char)) {
+        // printf("ci: %c\n", this->curr_char);
+        res[index] = this->curr_char;
+        Lexer_advance(this);
+        index++;
+    }
 
-// }
+    res[index] = '\0';
+    return res;
+}
 
 void Lexer_whitespace(struct Lexer *this) {
     while (this->curr_char != '\0' && isspace(this->curr_char)) {
@@ -46,7 +49,6 @@ struct Token* Lexer_next_token(struct Lexer *this) {
     //     init_Token_types(ret, t, 'E');
     //     return ret;
     // } 
-    printf("cc: %c\n", this->curr_char);
     while (this->curr_char != '\0') {
 
         if (isspace(this->curr_char)) {
@@ -59,8 +61,8 @@ struct Token* Lexer_next_token(struct Lexer *this) {
                 struct Token *ret = malloc(sizeof(struct Token));
                 enum token_type t = INTEGER;
                 // Lexer_integer(this, &(ret->value));
-                init_Token_types(ret, t, &this->curr_char);
-                Lexer_advance(this);
+                init_Token_types(ret, t, Lexer_integer(this, ret->value));
+                // Lexer_advance(this);
                 return ret;
         }
 
@@ -89,7 +91,7 @@ struct Token* Lexer_next_token(struct Lexer *this) {
 }
 
 void Lexer_eat_token(struct Lexer *this, enum token_type t) {
-    printf("%u and %s\n", this->curr_token.type, this->curr_token.value);
+    // printf("type: %u  value: %s\n", this->curr_token.type, this->curr_token.value);
     if (this->curr_token.type == t) {
         this->curr_token = *Lexer_next_token(this);
     } else {
