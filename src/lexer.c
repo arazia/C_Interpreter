@@ -85,6 +85,21 @@ struct Token* Lexer_get_next_token(struct Lexer *this) {
             Lexer_advance(this);
             return ret;
         }
+        if (this->curr_char == '(') {
+            struct Token *ret = malloc(sizeof(struct Token));
+            enum token_type t = LPARENT;
+            init_Token_types(ret, t, "(");
+            Lexer_advance(this);
+            return ret;
+        }
+        
+    if (this->curr_char == ')') {
+            struct Token *ret = malloc(sizeof(struct Token));
+            enum token_type t = RPARENT;
+            init_Token_types(ret, t, ")");
+            Lexer_advance(this);
+            return ret;
+        }
     }
 
     struct Token *ret = malloc(sizeof(struct Token));

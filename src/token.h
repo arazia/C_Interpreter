@@ -8,13 +8,15 @@
 
 
 enum token_type {
-  INTEGER,
-  ADD,
-  MINUS,
-  MULT,
-  DIV,
-  END,
-  ERROR
+  INTEGER, // 1
+  ADD, // 2
+  MINUS, // 3
+  MULT, // 4
+  DIV, // 5
+  LPARENT, // 6
+  RPARENT, // 7
+  END, // 8
+  ERROR // 9
 };
 
 struct Token {

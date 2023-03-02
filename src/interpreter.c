@@ -18,15 +18,25 @@ void Interpreter_eat(struct Interpreter *this, enum token_type t) {
         this->curr_token = *Lexer_get_next_token(&this->lexer);
     } else {
        printf("token cannot be eaten!\n"); 
-       exit(0);
+       exit(-1);
     }
 }
 
 int Interpreter_factor(struct Interpreter *this) {
-    int ret = atoi(this->curr_token.value);
-    Interpreter_eat(this, INTEGER);
-    return ret;
-}
+    if (this->curr_token.type == 0) {
+        int ret = atoi(this->curr_token.value);
+        Interpreter_eat(this, INTEGER);
+        return ret;
+     } else if (this->curr_token.type == 5) {
+        Interpreter_eat(this, LPARENT);
+        int ret = Interpreter_expr(this);
+        Interpreter_eat(this, RPARENT);
+        return ret;  
+     } else {
+        printf("factor not found!\n");
+        exit(1);
+    }
+ }
 
 int Interpreter_term(struct Interpreter *this) {
     int res = Interpreter_factor(this);
@@ -40,7 +50,7 @@ int Interpreter_term(struct Interpreter *this) {
             res /= Interpreter_factor(this);
         } else {
             printf("term not found!\n");
-            exit(0);
+            exit(1);
         }
 
     }
@@ -59,10 +69,11 @@ int Interpreter_expr(struct Interpreter *this) {
             Interpreter_eat(this, MINUS);
             result -= Interpreter_term(this);
         } else {
-            printf("expr not founf!\n");
+            printf("expr not found!\n");
             exit(0);
         }
     } 
 
     return result; 
 }
+
