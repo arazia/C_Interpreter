@@ -14,4 +14,4 @@ The interpreter follows the basic order of operations:
 PARENTHESIS over MULT and DIV over ADD and MINUS
 
 To run, enter the root directory:
-`make`
+`make clean; make; ./bin/interpret`
