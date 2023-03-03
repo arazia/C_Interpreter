@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "token.h"
+#include "../include/token.h"
 
 void init_Token_types(struct Token *this, enum token_type _type, char _value[]) {
     this->type = _type;

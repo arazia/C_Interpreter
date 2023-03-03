@@ -2,10 +2,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "lexer.h"
-#include "token.h"
-#include "interpreter.h"
-
+#include "../include/lexer.h"
+#include "../include/token.h"
+#include "../include/interpreter.h"
 
 void init_Interpreter (struct Interpreter *this, struct Lexer *_lexer) {
     this->lexer = *_lexer;

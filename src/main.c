@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "interpreter.h"
-#include "lexer.h"
-#include "token.h"
+#include "../include/interpreter.h"
+#include "../include/lexer.h"
+#include "../include/token.h"
 
 int main() {
     char in[301];

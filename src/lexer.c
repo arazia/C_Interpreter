@@ -2,8 +2,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "token.h"
-#include "lexer.h"
+#include "../include/token.h"
+#include "../include/lexer.h"
 
 
 void init_Lexer_types(struct Lexer *this) { // constructor for Lexer
