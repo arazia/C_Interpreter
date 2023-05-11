@@ -11,15 +11,15 @@ struct Lexer {
 
 };
 
-void init_Lexer_types(struct Lexer *this);
+void init_Lexer_types(struct Lexer *self);
 
-void Lexer_advance(struct Lexer *this);
+void Lexer_advance(struct Lexer *self);
 
-char* Lexer_integer(struct Lexer *this, char *res);
+char* Lexer_integer(struct Lexer *self, char *res);
 
-void Lexer_whitespace(struct Lexer *this);
+void Lexer_whitespace(struct Lexer *self);
 
-struct Token* Lexer_get_next_token(struct Lexer *this);
+struct Token* Lexer_get_next_token(struct Lexer *self);
 
 
 #endif

@@ -1,78 +1,65 @@
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdlib.h>
-#include "../include/lexer.h"
 #include "../include/token.h"
 #include "../include/interpreter.h"
+#include "../include/parser.h"
+#include "../include/AST.h"
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-void init_Interpreter (struct Interpreter *this, struct Lexer *_lexer) {
-    this->lexer = *_lexer;
-    this->curr_token = *Lexer_get_next_token(&this->lexer);
+void init_Interpreter(struct Interpreter *self, struct Parser _parser) {
+    self->parser = _parser;
 }
 
-void Interpreter_eat(struct Interpreter *this, enum token_type t) {
-    printf("type: %u  value: %s\n", this->curr_token.type, this->curr_token.value);
-    if (this->curr_token.type == t) {
-        this->curr_token = *Lexer_get_next_token(&this->lexer);
-    } else {
-       printf("token cannot be eaten!\n"); 
-       exit(-1);
+int Interpreter_visit_num(struct Interpreter *self, struct AST *node) {
+    if (node->token.type == INTEGER) {
+        return atoi(node->token.value);
     }
+    printf("visit_num did not find an integer! Found %d instead.", node->token.type);
+    exit(1);
 }
 
-int Interpreter_factor(struct Interpreter *this) {
-    if (this->curr_token.type == 0) {
-        int ret = atoi(this->curr_token.value);
-        Interpreter_eat(this, INTEGER);
-        return ret;
-     } else if (this->curr_token.type == 5) {
-        Interpreter_eat(this, LPARENT);
-        int ret = Interpreter_expr(this);
-        Interpreter_eat(this, RPARENT);
-        return ret;  
-     } else {
-        printf("factor not found!\n");
+int Interpreter_visit_binop(struct Interpreter *self, struct AST *node) {
+    int left_val = Interpreter_visit(self, node->children[0]);
+    int right_val = Interpreter_visit(self, node->children[1]);
+
+    if (node->token.type == ADD) {
+        return left_val + right_val;
+    } else if (node->token.type == MINUS) {
+        return left_val - right_val;
+    } else if (node->token.type == MULT) {
+        return left_val * right_val;
+    } else if (node->token.type == DIV) {
+        return left_val / right_val;
+    } else {
+        printf("visit binop could not find correct token type.");
         exit(1);
     }
- }
+}
 
-int Interpreter_term(struct Interpreter *this) {
-    int res = Interpreter_factor(this);
-
-    while (this->curr_token.type == 3 || this->curr_token.type == 4) {
-        if (this->curr_token.type == 3) {
-            Interpreter_eat(this, MULT);
-            res *= Interpreter_factor(this);
-        } else if (this->curr_token.type == 4) {
-            Interpreter_eat(this, DIV);
-            res /= Interpreter_factor(this);
-        } else {
-            printf("term not found!\n");
-            exit(1);
-        }
-
+int Interpreter_visit(struct Interpreter *self, struct AST *node) {
+    if (node->token.type == INTEGER) {
+        return Interpreter_visit_num(self, node);
+    } else if (node->token.type == ADD || node->token.type == MINUS || node->token.type == MULT || node->token.type == DIV) {
+        return Interpreter_visit_binop(self, node);
+    } else {
+        printf("Visit did not find a correct token type.");
+        exit(1);
     }
+}
 
+void inorder(struct AST *head) {
+    if (head == NULL) {
+        return;
+    }
+    
+    inorder(head->children[0]);
+    printf("%d %s\n", head->token.type, head->token.value);
+    inorder(head->children[1]);
+}
+
+
+int Interpreter_interpret(struct Interpreter *self) {
+    struct AST *tree = Parser_parse(&self->parser);
+    int res = Interpreter_visit(self, tree);
     return res;
 }
-
-
-int Interpreter_expr(struct Interpreter *this) {
-    int result = Interpreter_term(this);
-    while (this->curr_token.type == 1 || this->curr_token.type == 2) {
-        if (this->curr_token.type == 1) {
-            Interpreter_eat(this, ADD);
-            result += Interpreter_term(this);
-        } else if (this->curr_token.type == 2) {
-            Interpreter_eat(this, MINUS);
-            result -= Interpreter_term(this);
-        } else {
-            printf("expr not found!\n");
-            exit(0);
-        }
-    } 
-
-    return result; 
-}
-

@@ -2,22 +2,20 @@
 #define INTERPRETER_H
 
 
-#include "lexer.h"
-#include "token.h"
+#include "parser.h"
 
 struct Interpreter {
-    struct Lexer lexer;
-    struct Token curr_token;
+  struct Parser parser;
 };
 
-void init_Interpreter(struct Interpreter *this, struct Lexer *_lexer);
+void init_Interpreter(struct Interpreter *self, struct Parser _parser);
 
-void Interpreter_eat(struct Interpreter *this, enum token_type t);
+int Interpreter_visit_num(struct Interpreter *self, struct AST *node);
 
-int Interpreter_factor(struct Interpreter *this);
+int Interpreter_visit_binop(struct Interpreter *self, struct AST *node);
 
-int Interpreter_term(struct Interpreter *this);
+int Interpreter_visit(struct Interpreter *self, struct AST *node);
 
-int Interpreter_expr(struct Interpreter *this);
+int Interpreter_interpret(struct Interpreter *self);
 
 #endif
