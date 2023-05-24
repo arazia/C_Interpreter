@@ -14,11 +14,11 @@ void init_Parser(struct Parser *self, struct Lexer *_lexer);
 
 void Parser_eat(struct Parser *self, enum token_type t);
 
-struct AST* Parser_factor(struct Parser *self);
+struct ASTContainer* Parser_factor(struct Parser *self);
 
-struct AST* Parser_term(struct Parser *self);
+struct ASTContainer* Parser_term(struct Parser *self);
 
-struct AST* Parser_expr(struct Parser *self);
+struct ASTContainer* Parser_expr(struct Parser *self);
 
-struct AST* Parser_parse(struct Parser *self);
+struct ASTContainer* Parser_parse(struct Parser *self);
 #endif

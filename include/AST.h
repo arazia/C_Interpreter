@@ -1,23 +1,43 @@
 #ifndef AST_H
 #define AST_H
 
-
-
 #include "token.h"
 
-struct AST {
+enum ASTType {
+  Unary,
+  Binary,
+  Num
+};
+
+
+struct ASTContainer {
+  enum ASTType type;
+};
+
+
+struct BinaryAST {
+  struct ASTContainer container;
   struct Token token;
-  struct AST* children[2];
+  struct ASTContainer* children[2];
 };
 
 struct UnaryAST {
-  struct AST *expr;
+  struct ASTContainer container;
+  struct ASTContainer *expr;
   struct Token token;
 };
 
-void init_UnaryAST(struct UnaryAST *self, struct Token _token, struct AST *_expr);
+struct NumAST {
+  struct ASTContainer container;
+  struct Token token;
+  char value[20];
+};
 
-void init_AST(struct AST *self, struct Token _token, struct AST *_children[2]);
 
+void init_UnaryAST(struct UnaryAST *self, struct Token _token, struct ASTContainer *_expr);
+
+void init_BinaryAST(struct BinaryAST *self, struct Token _token, struct ASTContainer *_children[2]);
+
+void init_NumAST(struct NumAST *self, struct Token _token);
 
 #endif

@@ -10,13 +10,13 @@ struct Interpreter {
 
 void init_Interpreter(struct Interpreter *self, struct Parser _parser);
 
-int Interpreter_visit_num(struct Interpreter *self, struct AST *node);
+int Interpreter_visit_num(struct Interpreter *self, struct NumAST *node);
 
-int Interpreter_visit_binop(struct Interpreter *self, struct AST *node);
+int Interpreter_visit_binop(struct Interpreter *self, struct BinaryAST *node);
 
 int Interpreter_visit_unaryop(struct Interpreter *self, struct UnaryAST *node);
 
-int Interpreter_visit(struct Interpreter *self, struct AST *node);
+int Interpreter_visit(struct Interpreter *self, struct ASTContainer *node);
 
 int Interpreter_interpret(struct Interpreter *self);
 
