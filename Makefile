@@ -10,6 +10,8 @@ OBJECT_FILES=$(SOURCE_FILES:%.c=$(BUILD_DIR)/%.o)
 EXECUTABLE_FILES=$(EXECUTABLE_NAME:%=$(BIN_DIR)/%) 
 
 build: $(EXECUTABLE_FILES)
+debug: CFLAGS += -g
+debug: $(EXECUTABLE_FILES)
 
 $(EXECUTABLE_FILES) : $(OBJECT_FILES)
 	@$(CC) $(CFLAGS) -o $@ $^
@@ -27,4 +29,4 @@ $(BUILD_DIR)/token.o : $(INC_DIR)/token.h
 
 .PHONY : build clean
 clean:
-	rm interpret $(EXECUTABLE_FILES) $(OBJECT_FILES)
+	rm $(EXECUTABLE_FILES) $(OBJECT_FILES)

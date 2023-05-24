@@ -36,6 +36,17 @@ int Interpreter_visit_binop(struct Interpreter *self, struct AST *node) {
     }
 }
 
+int Interpreter_visit_unaryop(struct Interpreter *self, struct UnaryAST *node) {
+    if (node->token.type == ADD) {
+        return +Interpreter_visit(self, node->expr);
+    } else if (node->token.type == MINUS) {
+        return -Interpreter_visit(self, node->expr);
+    } else {
+        printf("Visit UnaryOp could not find correct token type.");
+        exit(1);
+    }
+}
+
 int Interpreter_visit(struct Interpreter *self, struct AST *node) {
     if (node->token.type == INTEGER) {
         return Interpreter_visit_num(self, node);
@@ -60,6 +71,7 @@ void inorder(struct AST *head) {
 
 int Interpreter_interpret(struct Interpreter *self) {
     struct AST *tree = Parser_parse(&self->parser);
+    inorder(tree);
     int res = Interpreter_visit(self, tree);
     return res;
 }

@@ -24,7 +24,27 @@ void Parser_eat(struct Parser *self, enum token_type t) {
 
 struct AST* Parser_factor(struct Parser *self) {
     struct AST *node = malloc(sizeof(struct AST));
-    if (self->curr_token.type == INTEGER) {
+    if (self->curr_token.type == ADD) {
+        struct UnaryAST *unary_node = malloc(sizeof(struct UnaryAST));
+        // struct AST *children[2] = { NULL };
+        Parser_eat(self, ADD);
+        memcpy(node, Parser_factor(self), sizeof(struct AST));
+        struct Token *temp = malloc(sizeof(struct Token));
+        init_Token_types(temp, ADD, "+");
+        init_UnaryAST(unary_node, *temp, node);
+        return (struct AST*)unary_node;
+    } else if (self->curr_token.type == MINUS) {
+        struct UnaryAST *unary_node = malloc(sizeof(struct UnaryAST));
+        // struct AST *children[2] = { NULL };
+        Parser_eat(self, MINUS);
+        // breaks due to this line
+        memcpy(node, Parser_factor(self), sizeof(struct AST));
+        // node = Parser_factor(self);
+        struct Token *temp = malloc(sizeof(struct Token));
+        init_Token_types(temp, MINUS, "-");
+        init_UnaryAST(unary_node, *temp, node);
+        return (struct AST*)unary_node;
+    } else if (self->curr_token.type == INTEGER) {
         struct AST *children[2] = { NULL };
         init_AST(node, self->curr_token, children);
         Parser_eat(self, INTEGER);
@@ -62,8 +82,8 @@ struct AST* Parser_term(struct Parser *self) {
             // struct Token *temp = malloc(sizeof(struct Token));
             // init_Token_types(temp, DIV, "/");
             struct Token *temp = malloc(sizeof(struct Token));
-            init_Token_types(temp, MULT, "*");
-            init_AST(node, self->curr_token, children);
+            init_Token_types(temp, DIV, "/");
+            init_AST(node, *temp, children);
         } else {
             printf("term not found!\n");
             exit(1);
