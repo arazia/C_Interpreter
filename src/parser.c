@@ -99,29 +99,39 @@ struct ASTContainer* Parser_term(struct Parser *self) {
 
 struct ASTContainer* Parser_expr(struct Parser *self) {
     struct ASTContainer *node = Parser_term(self);
-    struct BinaryAST *new_node = NULL;
 
     while (self->curr_token.type == ADD || self->curr_token.type == MINUS) {
+        struct BinaryAST* node_temp = malloc(sizeof(struct BinaryAST));
+        struct ASTContainer* node_copy = NULL;
+        if (node->type == Unary) {
+            node_copy = malloc(sizeof(struct UnaryAST));
+            memcpy(node_copy, (struct UnaryAST*)node, sizeof(struct UnaryAST));
+        } else if (node->type == Num) {
+            node_copy = malloc(sizeof(struct NumAST));
+            memcpy(node_copy, (struct NumAST*)node, sizeof(struct NumAST));
+        } else {
+            node_copy = malloc(sizeof(struct BinaryAST));
+            memcpy(node_copy, (struct BinaryAST*)node, sizeof(struct BinaryAST));
+        }
         if (self->curr_token.type == ADD) {
             Parser_eat(self, ADD);
-            new_node = malloc(sizeof(struct BinaryAST));
-            struct ASTContainer *children[2] = {node, Parser_term(self)};
+            struct ASTContainer *children[2] = {node_copy, Parser_term(self)};
             struct Token *temp = malloc(sizeof(struct Token));
             init_Token_types(temp, ADD, "+");
-            init_BinaryAST(new_node, *temp, children);
+            init_BinaryAST(node_temp, *temp, children);
         } else if (self->curr_token.type == MINUS) {
             Parser_eat(self, MINUS);
-            new_node = malloc(sizeof(struct BinaryAST));
-            struct ASTContainer *children[2] = {node, Parser_term(self)};
+            struct ASTContainer *children[2] = {node_copy, Parser_term(self)};
             struct Token *temp = malloc(sizeof(struct Token));
             init_Token_types(temp, MINUS, "-");
-            init_BinaryAST(new_node, *temp, children);
+            init_BinaryAST(node_temp, *temp, children);
         } else {
             printf("expr not found!\n");
             exit(1);
         }
+        node = (struct ASTContainer*)node_temp;
     } 
-    return (new_node != NULL) ? (struct ASTContainer*)new_node : node;
+    return node;
 }
 
 struct ASTContainer* Parser_parse(struct Parser *self) {
