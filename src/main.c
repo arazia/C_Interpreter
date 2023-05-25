@@ -1,20 +1,41 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "../include/interpreter.h"
 #include "../include/lexer.h"
 #include "../include/token.h"
 #include "../include/parser.h"
 #include "../include/AST.h"
 
-int main() {
-    char in[301];
-    in[300] = '\0';
+char *strip(const char *s) {
+    char *p = malloc(strlen(s) + 1);
+    if(p) {
+        char *p2 = p;
+        while(*s != '\0') {
+            if(*s != '\n') {
+                *p2++ = *s++;
+            } else {
+                ++s;
+            }
+        }
+        *p2 = '\0';
+    }
+    return p;
+}
 
+int main() {
+    char main_input[3000];
+    char in[300];
     // struct Lexer *lexer = malloc(sizeof(struct Lexer));
     struct Parser parser;
     struct Lexer lexer;
     struct Interpreter interpreter;
-    printf("Enter expression: ");
-    fgets(lexer.text, sizeof(in) - 1, stdin);
+    printf("# ");
+    while (fgets(in, sizeof(in), stdin) != NULL) {
+        strcat(main_input, strip(in));
+    }
+
+    strcpy(lexer.text, main_input);
 
     init_Lexer_types(&lexer);
 

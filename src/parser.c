@@ -47,6 +47,9 @@ struct ASTContainer* Parser_factor(struct Parser *self) {
         struct ASTContainer *temp = malloc(sizeof(struct ASTContainer));
         Parser_eat(self, LPARENT);
         temp = Parser_expr(self);
+        // struct BinaryAST *temp1 = (struct BinaryAST*)temp;
+        // struct NumAST *temp2 = (struct NumAST*)temp1->children[0], *temp3 = (struct NumAST*)temp1->children[1];
+        // printf("\n %d 0: %s 1: %s\n", temp->type, temp2->value, temp3->value);
         Parser_eat(self, RPARENT);
         return temp;  
      } else {
@@ -59,30 +62,36 @@ struct ASTContainer* Parser_term(struct Parser *self) {
     struct ASTContainer *node = Parser_factor(self);
 
     while (self->curr_token.type == MULT || self->curr_token.type == DIV) {
+        struct BinaryAST* node_temp = malloc(sizeof(struct BinaryAST));
+        struct ASTContainer* node_copy = NULL;
+        if (node->type == Unary) {
+            node_copy = malloc(sizeof(struct UnaryAST));
+            memcpy(node_copy, (struct UnaryAST*)node, sizeof(struct UnaryAST));
+        } else {
+            node_copy = malloc(sizeof(struct NumAST));
+            memcpy(node_copy, (struct NumAST*)node, sizeof(struct NumAST));
+        }
         if (self->curr_token.type == MULT) {
             Parser_eat(self, MULT);
-            struct BinaryAST *new_node = malloc(sizeof(struct BinaryAST));
-            struct ASTContainer *children[2] = {node, Parser_factor(self)};
+            struct ASTContainer *children[2] = {node_copy, Parser_factor(self)};
             // struct Token *temp = malloc(sizeof(struct Token));
             // init_Token_types(temp, MULT, "*");
             struct Token *temp = malloc(sizeof(struct Token));
             init_Token_types(temp, MULT, "*");
-            init_BinaryAST(new_node, *temp, children);
-            return (struct ASTContainer*)new_node;
+            init_BinaryAST(node_temp, *temp, children);
         } else if (self->curr_token.type == DIV) {
             Parser_eat(self, DIV);
-            struct BinaryAST *new_node = malloc(sizeof(struct BinaryAST));
-            struct ASTContainer *children[2] = {node, Parser_factor(self)};
+            struct ASTContainer *children[2] = {node_copy, Parser_factor(self)};
             // struct Token *temp = malloc(sizeof(struct Token));
             // init_Token_types(temp, DIV, "/");
             struct Token *temp = malloc(sizeof(struct Token));
             init_Token_types(temp, DIV, "/");
-            init_BinaryAST(new_node, *temp, children);
-            return (struct ASTContainer*)new_node;
+            init_BinaryAST(node_temp, *temp, children);
         } else {
             printf("term not found!\n");
             exit(1);
         }
+        node = (struct ASTContainer*)node_temp;
     }
     return node;
 }
@@ -90,29 +99,29 @@ struct ASTContainer* Parser_term(struct Parser *self) {
 
 struct ASTContainer* Parser_expr(struct Parser *self) {
     struct ASTContainer *node = Parser_term(self);
+    struct BinaryAST *new_node = NULL;
+
     while (self->curr_token.type == ADD || self->curr_token.type == MINUS) {
         if (self->curr_token.type == ADD) {
             Parser_eat(self, ADD);
-            struct BinaryAST *new_node = malloc(sizeof(struct BinaryAST));
+            new_node = malloc(sizeof(struct BinaryAST));
             struct ASTContainer *children[2] = {node, Parser_term(self)};
             struct Token *temp = malloc(sizeof(struct Token));
             init_Token_types(temp, ADD, "+");
             init_BinaryAST(new_node, *temp, children);
-            return (struct ASTContainer*)new_node;
         } else if (self->curr_token.type == MINUS) {
             Parser_eat(self, MINUS);
-            struct BinaryAST *new_node = malloc(sizeof(struct BinaryAST));
+            new_node = malloc(sizeof(struct BinaryAST));
             struct ASTContainer *children[2] = {node, Parser_term(self)};
             struct Token *temp = malloc(sizeof(struct Token));
             init_Token_types(temp, MINUS, "-");
             init_BinaryAST(new_node, *temp, children);
-            return (struct ASTContainer*)new_node;
         } else {
             printf("expr not found!\n");
             exit(1);
         }
     } 
-    return node;
+    return (new_node != NULL) ? (struct ASTContainer*)new_node : node;
 }
 
 struct ASTContainer* Parser_parse(struct Parser *self) {

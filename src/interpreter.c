@@ -38,7 +38,7 @@ int Interpreter_visit_unaryop(struct Interpreter *self, struct UnaryAST *node) {
     } else if (node->token.type == MINUS) {
         return -Interpreter_visit(self, node->expr);
     } else {
-        printf("Visit UnaryOp could not find correct token type.");
+        printf("Visit UnaryOp could not find correct token type. Found %d instead.", node->token.type);
         exit(1);
     }
 }
