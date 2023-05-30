@@ -15,8 +15,13 @@ enum token_type {
   DIV, // 4
   LPARENT, // 5
   RPARENT, // 6
-  END, // 7
-  ERROR // 8
+  ASSIGN,
+  SEMI,
+  ID,
+  LET,
+  IN,
+  END, // 12
+  ERROR // 13
 };
 
 struct Token {

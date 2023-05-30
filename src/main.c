@@ -23,29 +23,51 @@ char *strip(const char *s) {
     return p;
 }
 
-int main() {
+int find_end(const char *s) {
+    for (int i = 0; i < strlen(s)-1; i++) {
+        if (s[i] == ';' && s[i+1] == ';') {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main(int argc, char **argv) {
     char main_input[3000];
     char in[300];
     // struct Lexer *lexer = malloc(sizeof(struct Lexer));
     struct Parser parser;
     struct Lexer lexer;
     struct Interpreter interpreter;
-    printf("# ");
-    while (fgets(in, sizeof(in), stdin) != NULL) {
-        strcat(main_input, strip(in));
+    if (argc == 1) {
+        printf("# ");
+        while (fgets(in, sizeof(in), stdin) != NULL) {
+            strcat(main_input, strip(in));
+            find_end(in) ? printf("# ") : 0;
+        }
+
+        strcpy(lexer.text, main_input);
+
+        init_Lexer_types(&lexer);
+
+        init_Parser(&parser, &lexer);
+
+        init_Interpreter(&interpreter, parser);
+
+        int res = Interpreter_interpret(&interpreter);
+
+        printf("%d", res);
+    } else {
+        FILE *file;
+        file = fopen(argv[0], "r");
+        fgets(main_input, 3000, file);
+
+
+
+        fclose(file);
     }
 
-    strcpy(lexer.text, main_input);
-
-    init_Lexer_types(&lexer);
-
-    init_Parser(&parser, &lexer);
-
-    init_Interpreter(&interpreter, parser);
-
-    int res = Interpreter_interpret(&interpreter);
-
-    printf("%d", res);
+    
 
     return 0;
 }

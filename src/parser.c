@@ -17,9 +17,92 @@ void Parser_eat(struct Parser *self, enum token_type t) {
     if (self->curr_token.type == t) {
         self->curr_token = *Lexer_get_next_token(self->lexer);
     } else {
-       printf("token cannot be eaten!\n"); 
+       printf("token cannot be eaten! Ate %d instead of %d\n", self->curr_token.type, t); 
        exit(1);
     }
+}
+
+struct ASTContainer* Parser_program(struct Parser *self) {
+    struct ASTContainer *node = Parser_scope(self);
+    Parser_eat(self, END);
+    return node;
+}
+
+struct ASTContainer* Parser_scope(struct Parser *self) {
+    int ret_size;
+    struct ASTContainer **nodes = Parser_statement_list(self, &ret_size);
+
+    struct ScopeAST *root = malloc(sizeof(struct ScopeAST));
+    init_ScopeAST(root, nodes, ret_size);
+
+    return (struct ASTContainer*)root;    
+}
+
+struct ASTContainer** Parser_statement_list(struct Parser *self, int *_ret_size) {
+    struct ASTContainer *node = Parser_statement(self);
+    struct ASTContainer **ret = malloc(500 * sizeof(struct ASTContainer*));
+    ret[0] = node;
+    int ret_size = 1;
+
+    while (self->curr_token.type == SEMI) {
+        Parser_eat(self, SEMI);
+        ret_size++;
+        ret[ret_size - 1] = Parser_statement(self);
+    }
+
+    if (self->curr_token.type == ID) {
+        printf("Statement List found ID in wrong place!");
+        exit(1);
+    } else if (ret_size > 500) {
+        printf("Current App only supports %d possible statements, you have %d!", 500, ret_size);
+        exit(1);
+    }
+    *_ret_size = ret_size;
+    return ret;
+}
+
+struct ASTContainer* Parser_statement(struct Parser *self) {
+    if (self->curr_token.type == LET) {
+        return Parser_assignment(self);
+    } else if (self->curr_token.type == INTEGER) {
+        return Parser_expr(self);
+    } else if (self->curr_token.type == ID) {
+        return Parser_expr(self);
+    }
+    else {
+        return Parser_empty(self);
+    }
+}
+
+
+struct ASTContainer* Parser_assignment(struct Parser *self) {
+    Parser_eat(self, LET);
+    
+    struct ASTContainer *left = Parser_variable(self);
+    struct Token *temp = &self->curr_token;
+    Parser_eat(self, ASSIGN);
+    struct ASTContainer *right = Parser_expr(self);
+
+    struct AssignAST *ret = malloc(sizeof(struct AssignAST));
+
+    struct ASTContainer *children[2] = {left, right};
+    init_AssignAST(ret, *temp, children);
+
+    return (struct ASTContainer*)ret;
+    
+}
+
+struct ASTContainer* Parser_variable(struct Parser *self) {
+    struct VariableAST *ret = malloc(sizeof(struct VariableAST));
+    init_VariableAST(ret, self->curr_token);
+    Parser_eat(self, ID);
+    return (struct ASTContainer*)ret;
+}
+
+struct ASTContainer* Parser_empty(struct Parser *self) {
+    struct EmptyAST *ret = malloc(sizeof(struct EmptyAST));
+    init_EmptyAST(ret);
+    return (struct ASTContainer*)ret;
 }
 
 struct ASTContainer* Parser_factor(struct Parser *self) {
@@ -53,8 +136,7 @@ struct ASTContainer* Parser_factor(struct Parser *self) {
         Parser_eat(self, RPARENT);
         return temp;  
      } else {
-        printf("factor not found! Found %d instead.\n", self->curr_token.type);
-        exit(1);
+        return Parser_variable(self);
     }
  }
 
@@ -67,9 +149,12 @@ struct ASTContainer* Parser_term(struct Parser *self) {
         if (node->type == Unary) {
             node_copy = malloc(sizeof(struct UnaryAST));
             memcpy(node_copy, (struct UnaryAST*)node, sizeof(struct UnaryAST));
-        } else {
+        } else if (node->type == Num){
             node_copy = malloc(sizeof(struct NumAST));
             memcpy(node_copy, (struct NumAST*)node, sizeof(struct NumAST));
+        } else {
+            node_copy = malloc(sizeof(struct VariableAST));
+            memcpy(node_copy, (struct VariableAST*)node, sizeof(struct VariableAST));
         }
         if (self->curr_token.type == MULT) {
             Parser_eat(self, MULT);
@@ -109,9 +194,12 @@ struct ASTContainer* Parser_expr(struct Parser *self) {
         } else if (node->type == Num) {
             node_copy = malloc(sizeof(struct NumAST));
             memcpy(node_copy, (struct NumAST*)node, sizeof(struct NumAST));
-        } else {
+        } else if (node->type == Binary) {
             node_copy = malloc(sizeof(struct BinaryAST));
             memcpy(node_copy, (struct BinaryAST*)node, sizeof(struct BinaryAST));
+        } else {
+            node_copy = malloc(sizeof(struct VariableAST));
+            memcpy(node_copy, (struct VariableAST*)node, sizeof(struct VariableAST));
         }
         if (self->curr_token.type == ADD) {
             Parser_eat(self, ADD);
@@ -135,7 +223,7 @@ struct ASTContainer* Parser_expr(struct Parser *self) {
 }
 
 struct ASTContainer* Parser_parse(struct Parser *self) {
-    return Parser_expr(self);
+    return Parser_program(self);
 }
 
 
