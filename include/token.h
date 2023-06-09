@@ -8,15 +8,20 @@
 
 
 enum token_type {
-  INTEGER, // 1
-  ADD, // 2
-  MINUS, // 3
-  MULT, // 4
-  DIV, // 5
-  LPARENT, // 6
-  RPARENT, // 7
-  END, // 8
-  ERROR // 9
+  INTEGER, // 0
+  ADD, // 1
+  MINUS, // 2
+  MULT, // 3
+  DIV, // 4
+  LPARENT, // 5
+  RPARENT, // 6
+  ASSIGN,
+  SEMI,
+  ID,
+  LET,
+  IN,
+  END, // 12
+  ERROR // 13
 };
 
 struct Token {
@@ -24,6 +29,6 @@ struct Token {
    char value[20];
 };
 
-void init_Token_types(struct Token *this, enum token_type _type, char _value[]);
+void init_Token_types(struct Token *self, enum token_type _type, char _value[]);
 
 #endif
